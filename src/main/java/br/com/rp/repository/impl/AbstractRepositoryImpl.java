@@ -12,7 +12,7 @@ import br.com.rp.repository.Repository;
 @Interceptors(LogInterceptor.class)
 public abstract class AbstractRepositoryImpl<T extends BaseEntity> implements Repository<T> {
 
-	@PersistenceContext(unitName = "vbankpu")
+	@PersistenceContext(unitName = "vbank")
 	protected EntityManager em;
 
 	private Class<T> clazz;
@@ -23,7 +23,7 @@ public abstract class AbstractRepositoryImpl<T extends BaseEntity> implements Re
 		}
 		this.clazz = clazz;
 	}
-
+	
 	@Override
 	public List<T> getAll() {
 		return em.createQuery("from " + clazz.getSimpleName(), clazz).getResultList();

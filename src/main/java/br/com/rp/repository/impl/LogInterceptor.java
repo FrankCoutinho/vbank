@@ -5,7 +5,7 @@ import javax.interceptor.AroundInvoke;
 import javax.interceptor.InvocationContext;
 
 import br.com.rp.domain.Log;
-import br.com.rp.domain.TipoOperacao;
+import br.com.rp.enums.TipoOperacao;
 import br.com.rp.repository.LogRepository;
 
 public class LogInterceptor {

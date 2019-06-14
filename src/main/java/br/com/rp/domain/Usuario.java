@@ -26,9 +26,6 @@ public abstract class Usuario extends BaseEntity implements Serializable {
 	@Column(name = "nome", length = 60, nullable = false)
 	private String nome;
 
-	/*
-	 * Login do funcionário no sistema.
-	 */
 	@Column(name = "login", length = 30, nullable = true)
 	private String login;
 	
@@ -36,9 +33,6 @@ public abstract class Usuario extends BaseEntity implements Serializable {
 	@Column(name = "senha", length = 8, nullable = false)
 	private String senha;
 
-	/*
-	 * Lista de papel que este usuário possui.
-	 */
 	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "papel_usuario", joinColumns = {
 			@JoinColumn(referencedColumnName = "id", name = "usuario_id") }, inverseJoinColumns = @JoinColumn(referencedColumnName = "id", name = "papel_id"))

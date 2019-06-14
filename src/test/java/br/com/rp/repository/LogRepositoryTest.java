@@ -13,7 +13,7 @@ import org.junit.Test;
 
 import br.com.rp.AbstractTest;
 import br.com.rp.domain.Log;
-import br.com.rp.domain.TipoOperacao;
+import br.com.rp.enums.TipoOperacao;
 import br.com.rp.repository.LogRepository;
 
 public class LogRepositoryTest extends AbstractTest {
@@ -29,7 +29,6 @@ public class LogRepositoryTest extends AbstractTest {
 	@Test
 	public void deveInserirLogComSucesso() {
 		Log log = new Log();
-		log.setTipoOperacao(TipoOperacao.EXTRATO);
 		log.setData(Calendar.getInstance().getTime());
 		log.setUsuario("rodrigo");
 		log.setDetalhes("Consulta Extrato Mes 6");
@@ -41,7 +40,6 @@ public class LogRepositoryTest extends AbstractTest {
 	@Test(expected = EJBTransactionRolledbackException.class)
 	public void deveNaoInserirLogPorFaltaDeUsuario() {
 		Log log = new Log();
-		log.setTipoOperacao(TipoOperacao.EXTRATO);
 		log.setData(Calendar.getInstance().getTime());
 		log.setDetalhes("Consulta Extrato Mes 6");
 		log = repository.save(log);
@@ -64,7 +62,6 @@ public class LogRepositoryTest extends AbstractTest {
 	@Test
 	public void deveExistirDataAlteracao() {
 		Log log = new Log();
-		log.setTipoOperacao(TipoOperacao.EXTRATO);
 		log.setDetalhes("Consulta Extrato Mes 6");
 		log.setUsuario("rodrigo");
 		log = repository.save(log);
@@ -75,7 +72,6 @@ public class LogRepositoryTest extends AbstractTest {
 	@Test(expected=Exception.class)
 	public void deveFalharPoisNaoUsuarioNaoTem3Digitos() {
 		Log log = new Log();
-		log.setTipoOperacao(TipoOperacao.EXTRATO);
 		log.setDetalhes("Consulta Extrato Mes 6");
 		log.setUsuario("pr");
 		log = repository.save(log);
