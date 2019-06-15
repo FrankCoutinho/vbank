@@ -1,7 +1,9 @@
 package br.com.vbank.services;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -27,7 +29,7 @@ public class TransferenciaService {
 	public List<Transferencia> getAll() {
 		return transferenciaRepository.getAll();
 	}
-
+	
 	public Transferencia agendar(Transferencia transferencia) {
 		TimeIntegration parametro = parametroService.findParametro();
 
@@ -47,5 +49,31 @@ public class TransferenciaService {
 
 	public Transferencia getById(Long id) {
 		return transferenciaRepository.getById(id);
+	}
+
+	public List<Transferencia> getTransferenciasPendentes() {		
+		
+		List<Transferencia> transferencias = 
+				transferenciaRepository
+				.getAll()
+				.stream()
+				.filter(x -> x.getSituacaoTransferencia() == SituacaoTransferencia.PENDENTE )
+				.collect(Collectors.toList());
+		
+		List<Transferencia> transferenciasPendentes = new ArrayList<Transferencia>();
+		for (Transferencia transferencia : transferencias) {
+			if (validarSeATransferenciaPassouDaHoraPermitida(transferencia)) {
+				transferenciasPendentes.add(transferencia);
+			}		
+		}		
+		return transferenciasPendentes;
+	}
+	
+	public boolean validarSeATransferenciaPassouDaHoraPermitida(Transferencia transferencia) {		
+		return 	transferencia
+				.getAgendamento()
+				.getDataAgendamento()
+				.isBefore(LocalDateTime.now());
+ 
 	}
 }

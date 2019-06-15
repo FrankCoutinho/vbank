@@ -1,6 +1,7 @@
 package br.com.vbank.domain;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -17,9 +18,8 @@ import javax.persistence.TemporalType;
 @Table(name = "agendamento")
 public class Agendamento extends BaseEntity implements Serializable {
 
-	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "dt_agendamento", nullable = false)
-	private Date dataAgendamento;
+	private LocalDateTime dataAgendamento;
 
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "cliente_id", referencedColumnName = "id", nullable = false)
@@ -35,11 +35,11 @@ public class Agendamento extends BaseEntity implements Serializable {
 		this.cliente = cliente;
 	}
 
-	public Date getDataAgendamento() {
+	public LocalDateTime getDataAgendamento() {
 		return dataAgendamento;
 	}
 
-	public void setDataAgendamento(Date dataAgendamento) {
+	public void setDataAgendamento(LocalDateTime dataAgendamento) {
 		this.dataAgendamento = dataAgendamento;
 	}
 	
