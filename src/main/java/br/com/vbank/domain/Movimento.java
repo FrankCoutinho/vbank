@@ -96,16 +96,16 @@ public class Movimento extends BaseEntity implements Serializable {
 	
 	private Movimento addTransferencia(Transferencia transferencia) {
 		Movimento movimento = new Movimento();
-		movimento.setClienteRemetente(transferencia.getClienteRemetente());
-		movimento.setDtMovimento(transferencia.getDtTransferencia());
-		movimento.setAgendamento(transferencia.getAgendamento());
-		movimento.setVlMovimento(transferencia.getVlTranferencia());
-		movimento.setNrContaFavorecido(transferencia.getNrContaFavorecido());
-		movimento.setAgenciaFavorecido(transferencia.getAgenciaFavorecido());
-		movimento.setEmailFavorecido(transferencia.getEmailFavorecido());
-		movimento.setTipoContaFavorecido(transferencia.getTipoContaFavorecido());
-		movimento.setTipoContaDebito(transferencia.getTipoContaDebito());
-		movimento.setBancoFavorecido(transferencia.getBancoFavorecido());
+//		movimento.setClienteRemetente(transferencia.getClienteRemetente());
+//		movimento.setDtMovimento(transferencia.getDtTransferencia());
+//		movimento.setAgendamento(transferencia.getAgendamento());
+//		movimento.setVlMovimento(transferencia.getVlTranferencia());
+//		movimento.setNrContaFavorecido(transferencia.getNrContaFavorecido());
+//		movimento.setAgenciaFavorecido(transferencia.getAgenciaFavorecido());
+//		movimento.setEmailFavorecido(transferencia.getEmailFavorecido());
+//		movimento.setTipoContaFavorecido(transferencia.getTipoContaFavorecido());
+//		movimento.setTipoContaDebito(transferencia.getTipoContaDebito());
+//		movimento.setBancoFavorecido(transferencia.getBancoFavorecido());
 		movimento.setTipoMovimento(TipoMovimento.SAIDA);
 		movimento.setTipoTransacao(TipoTransacao.TRANSFERENCIA);
 		return movimento;
