@@ -1,18 +1,17 @@
 package br.com.vbank.timers;
 
 
-import java.util.List;
+import br.com.vbank.domain.Transferencia;
+import br.com.vbank.services.HorarioDeTransacoesService;
+import br.com.vbank.services.TransferenciaService;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import javax.ejb.EJB;
-import javax.ejb.ScheduleExpression;
-import javax.ejb.Timeout;
-import javax.ejb.TimerConfig;
-import javax.ejb.TimerService;
+import javax.ejb.*;
+import javax.inject.Inject;
+import javax.jms.*;
 
-import br.com.vbank.domain.Transferencia;
-import br.com.vbank.services.TransferenciaService;
+import static java.time.LocalDateTime.now;
 
 public  class TransferenciaTimer  {
 
@@ -20,10 +19,20 @@ public  class TransferenciaTimer  {
 	
 	@Resource 
 	private TimerService timerService;
-	
+
+	@Inject
+	@JMSConnectionFactory("jms/QueueConnectionFactory")
+	private JMSContext jmsContext;
+
+	@Resource(name = "jms/EfetivacaoTransferenciaQueue")
+	private Destination destination;
+
 	@EJB
 	private TransferenciaService transferenciaService;
-		
+
+	@EJB
+	private HorarioDeTransacoesService horarioDeTransacoesService;
+
 	@PostConstruct
 	public void init() {
 		
@@ -34,8 +43,30 @@ public  class TransferenciaTimer  {
 	}
 	
 	@Timeout
-	public List<Transferencia> listarTransferenciasPendentes(){
-		List<Transferencia> transferencias = transferenciaService.getTransferenciasPendentes();
-		return transferencias;
+	public void enviarTransferenciasParaSeremEfetivadas() {
+
+		if (!horarioDeTransacoesService.recuperar().isAbertoParaTransacoes())
+			return;
+
+		JMSProducer jmsProducer = jmsContext.createProducer();
+
+		transferenciaService
+			.getTransferenciasPendentes()
+			.stream()
+			.filter(it -> it.getDtAgendamento().isBefore(now()))
+			.map(this::convertToObjectMessage)
+			.forEach(it -> jmsProducer.send(destination, it));
+	}
+
+	private ObjectMessage convertToObjectMessage(Transferencia transferencia) {
+
+		try {
+			ObjectMessage message = jmsContext.createObjectMessage();
+			message.setObject(transferencia);
+			return message;
+		}
+		catch (JMSException exception) {
+			throw new IllegalThreadStateException();
+		}
 	}
 }

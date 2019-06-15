@@ -31,7 +31,7 @@ public class TransferenciaRest {
 	
 	@POST
 	public Transferencia agendar(Transferencia transferencia){
-		return transferenciaService.agendar(transferencia);
+		return transferenciaService.salvar(transferencia);
 	}
 
 	@GET

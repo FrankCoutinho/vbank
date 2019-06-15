@@ -51,10 +51,6 @@ public class PropostaService {
         return propostaRepository.getById(id);
     }
 
-    public void remove(Long id) {
-        propostaRepository.remove(id);
-    }
-
     public Proposta aprovarProposta(Long idProposta, AprovarPropostaDto aprovarPropostaDto) {
 
         Proposta proposta = propostaRepository.getById(idProposta);
