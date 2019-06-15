@@ -1,16 +1,14 @@
 package br.com.vbank.services;
 
-import java.text.SimpleDateFormat;
-import java.util.List;
+import br.com.vbank.domain.Deposito;
+import br.com.vbank.domain.Movimento;
+import br.com.vbank.enums.SituacaoDeposito;
+import br.com.vbank.repository.DepositoRepository;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-
-import br.com.vbank.domain.Deposito;
-import br.com.vbank.domain.Movimento;
-import br.com.vbank.domain.TimeIntegration;
-import br.com.vbank.enums.SituacaoDeposito;
-import br.com.vbank.repository.DepositoRepository;
+import java.text.SimpleDateFormat;
+import java.util.List;
 
 @Stateless
 public class DepositoService {
@@ -22,15 +20,14 @@ public class DepositoService {
 	private MovimentoService movimentoService;
 
 	@EJB
-	private TimeIntegrationService parametroService;
+	private HorarioDeTransacoesService parametroService;
 
 	public List<Deposito> getAll() {
 		return depositoRepository.getAll();
 	}
 
 	public Deposito save(Deposito deposito) {
-		TimeIntegration parametro = parametroService.findParametro();
-		if (parametroService.isHorarioTransacaoValido(parametro, deposito)) {
+		if (parametroService.recuperar().isAbertoParaTransacoes()) {
 			Deposito deposit = depositoRepository.save(deposito);
 			if (deposito.getSituacaoDeposito() == SituacaoDeposito.FINALIZADO) {
 				movimentoService.save(new Movimento().addMovimento(deposit));
@@ -38,9 +35,9 @@ public class DepositoService {
 			return deposit;
 		} else {
 			SimpleDateFormat sdf = new SimpleDateFormat("hh:mm:ss");
-			throw new RuntimeException(
-					"Só são permitidas movimentações entre " + sdf.format(parametro.getHoraInicioTransacoes()) + " e "
-							+ sdf.format(parametro.getHoraFimTransacoes()) + ".");
+			throw new RuntimeException();
+//					"Só são permitidas movimentações entre " + sdf.format(parametro.getHorarioDeInicioTransacoes()) + " e "
+//							+ sdf.format(parametro.getHoraFimTransacoes()) + ".");
 		}
 	}
 
