@@ -1,18 +1,12 @@
 package br.com.vbank.domain;
 
+import br.com.vbank.enums.SituacaoTransferencia;
+
+import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.JoinColumn;
-import javax.persistence.Table;
-
-import br.com.vbank.enums.SituacaoTransferencia;
 
 @Entity
 @Table(name = "transferencia")
@@ -47,7 +41,7 @@ public class Transferencia extends BaseEntity implements Serializable {
 		this.vlTransferencia = vlTransferencia;
 		this.dtTransferencia = dtTransferencia;
 		this.situacaoTransferencia = SituacaoTransferencia.PENDENTE;
-		this.dtAgendamento = LocalDate.now();
+		this.dtAgendamento = LocalDateTime.now();
 	}
 
 	public String getNrContaRemetente() {
