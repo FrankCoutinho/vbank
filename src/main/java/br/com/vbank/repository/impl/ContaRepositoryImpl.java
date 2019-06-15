@@ -12,4 +12,9 @@ public class ContaRepositoryImpl extends AbstractRepositoryImpl<Conta> implement
 		super(Conta.class);
 	}
 
+	@Override
+	public Conta findByNrConta(String numeroConta) {
+		return findByNrConta(numeroConta);
+	}
+
 }
