@@ -8,7 +8,6 @@ import javax.ejb.Stateless;
 
 import br.com.vbank.domain.Movimento;
 import br.com.vbank.domain.Pagamento;
-import br.com.vbank.domain.TimeIntegration;
 import br.com.vbank.enums.SituacaoPagamento;
 import br.com.vbank.repository.PagamentoRepository;
 
@@ -22,15 +21,14 @@ public class PagamentoService {
 	private MovimentoService movimentoService;
 
 	@EJB
-	private TimeIntegrationService parametroService;
+	private HorarioDeTransacoesService parametroService;
 
 	public List<Pagamento> getAll() {
 		return pagamentoRepository.getAll();
 	}
 
 	public Pagamento save(Pagamento pagamento) {
-		TimeIntegration parametro = parametroService.findParametro();
-		if (parametroService.isHorarioTransacaoValido(parametro, pagamento)) {
+		if (parametroService.recuperar().isAbertoParaTransacoes()) {
 			Pagamento pagament = pagamentoRepository.save(pagamento);
 			if (pagamento.getSituacaoPagamento() == SituacaoPagamento.FINALIZADO) {
 				movimentoService.save(new Movimento().addMovimento(pagament));
@@ -38,9 +36,9 @@ public class PagamentoService {
 			return pagament;
 		} else {
 			SimpleDateFormat sdf = new SimpleDateFormat("hh:mm:ss");
-			throw new RuntimeException(
-					"Só são permitidas movimentações entre " + sdf.format(parametro.getHoraInicioTransacoes()) + " e "
-							+ sdf.format(parametro.getHoraFimTransacoes()) + ".");
+			throw new RuntimeException();
+//					"Só são permitidas movimentações entre " + sdf.format(parametro.getHorarioDeInicioTransacoes()) + " e "
+//							+ sdf.format(parametro.getHoraFimTransacoes()) + ".");
 		}
 	}
 

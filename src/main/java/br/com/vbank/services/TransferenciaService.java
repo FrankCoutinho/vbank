@@ -1,15 +1,14 @@
 package br.com.vbank.services;
 
-import java.text.SimpleDateFormat;
+
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
-import br.com.vbank.domain.Movimento;
-import br.com.vbank.domain.TimeIntegration;
 import br.com.vbank.domain.Transferencia;
 import br.com.vbank.enums.SituacaoTransferencia;
 import br.com.vbank.repository.TransferenciaRepository;
@@ -21,7 +20,7 @@ public class TransferenciaService {
 	private MovimentoService movimentoService;
 
 	@EJB
-	private TimeIntegrationService parametroService;
+	private HorarioDeTransacoesService parametroService;
 
 	@EJB
 	private TransferenciaRepository transferenciaRepository;
@@ -31,20 +30,23 @@ public class TransferenciaService {
 	}
 	
 	public Transferencia agendar(Transferencia transferencia) {
-		TimeIntegration parametro = parametroService.findParametro();
-
-		if (parametroService.isHorarioTransacaoValido(parametro, transferencia)) {
-			Transferencia transf = transferenciaRepository.save(transferencia);
-			if (transf.getSituacaoTransferencia() == SituacaoTransferencia.FINALIZADA) {
-				movimentoService.save(new Movimento().addMovimento(transf));
-			}
-			return transf;
-		} else {
-			SimpleDateFormat sdf = new SimpleDateFormat("hh:mm:ss");
-			throw new RuntimeException(
-					"Só são permitidas movimentações entre " + sdf.format(parametro.getHoraInicioTransacoes()) + " e "
-							+ sdf.format(parametro.getHoraFimTransacoes()) + ".");
-		}
+//		HorarioDeTransacoes horarioDeTransacoes = parametroService.recuperar();
+//
+//		if (horarioDeTransacoes.isAbertoParaTransacoes()) {
+//
+//			Transferencia transf = transferenciaRepository.save(transferencia);
+//			if (transf.getSituacaoTransferencia() == SituacaoTransferencia.FINALIZADA) {
+//				movimentoService.save(new Movimento().addMovimento(transf));
+//			}
+//			return transf;
+//		}
+//		else {
+//			SimpleDateFormat sdf = new SimpleDateFormat("hh:mm:ss");
+//			throw new RuntimeException(
+//					"Só são permitidas movimentações entre " + sdf.format(horarioDeTransacoes.getHorarioDeInicioTransacoes()) + " e "
+//							+ sdf.format(horarioDeTransacoes.getHoraFimTransacoes()) + ".");
+//		}
+		return null;
 	}
 
 	public Transferencia getById(Long id) {
@@ -71,8 +73,7 @@ public class TransferenciaService {
 	
 	public boolean validarSeATransferenciaPassouDaHoraPermitida(Transferencia transferencia) {		
 		return 	transferencia
-				.getAgendamento()
-				.getDataAgendamento()
+				.getDtAgendamento()				
 				.isBefore(LocalDateTime.now());
  
 	}

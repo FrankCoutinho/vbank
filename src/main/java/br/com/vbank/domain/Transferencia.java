@@ -2,100 +2,60 @@ package br.com.vbank.domain;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 import br.com.vbank.enums.SituacaoTransferencia;
-import br.com.vbank.enums.TipoConta;
 
 @Entity
 @Table(name = "transferencia")
 public class Transferencia extends BaseEntity implements Serializable {
-
-	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "cliente_id", referencedColumnName = "id", nullable = false)
-	private Cliente clienteRemetente;
 	
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "dt_transferencia", nullable = true)
-	private Date dtTransferencia;
-	
-	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "agendamento_id", referencedColumnName = "id", nullable = true)
-	private Agendamento agendamento;
-
-	@Column(name = "vl_tranferencia", precision = 14, scale = 2, nullable = false)
-	private BigDecimal vlTranferencia;
+	@Column(name = "nr_conta_remetente", length = 20, nullable = false)
+	private String nrContaRemetente;
 	
 	@Column(name = "nr_conta_favorecido", length = 20, nullable = false)
 	private String nrContaFavorecido;
 	
-	@Column(name = "agencia_favorecido", length = 10, nullable = true)
-	private String agenciaFavorecido;
+	@Column(name = "vl_tranferencia", precision = 14, scale = 2, nullable = false)
+	private BigDecimal vlTransferencia;
 	
-	@Column(name = "email_favorecido", length = 50, nullable = true)
-	private String emailFavorecido;
-	
-	@Enumerated(EnumType.STRING)
-	@Column(name = "tp_conta_favorecido", length = 15, nullable = false)
-	private TipoConta tipoContaFavorecido;
-	
-	@Enumerated(EnumType.STRING)
-	@Column(name = "tp_conta_debito", length = 15, nullable = false)
-	private TipoConta tipoContaDebito;
-	
+	@Column(name = "dt_transferencia", nullable = true)
+	private LocalDate dtTransferencia;
+			
 	@Enumerated(EnumType.STRING)
 	@Column(name = "tp_situacao", length = 15, nullable = false)
 	private SituacaoTransferencia situacaoTransferencia;
 	
-	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "banco_id", referencedColumnName = "id", nullable = false)
-	private Banco bancoFavorecido;
+	@JoinColumn(name = "dt_agendamento", referencedColumnName = "id", nullable = true)
+	private LocalDateTime dtAgendamento;
 	
 	public Transferencia() {
 
 	}
-
-	public Cliente getClienteRemetente() {
-		return clienteRemetente;
-	}
-
-	public void setClienteRemetente(Cliente clienteRemetente) {
-		this.clienteRemetente = clienteRemetente;
-	}
-
-	public Date getDtTransferencia() {
-		return dtTransferencia;
-	}
-
-	public void setDtTransferencia(Date dtTransferencia) {
+	
+	public Transferencia(String nrContaRemetente, String nrContaFavorecido, BigDecimal vlTransferencia, LocalDate dtTransferencia) {
+		this.nrContaRemetente = nrContaRemetente;
+		this.nrContaFavorecido = nrContaFavorecido;
+		this.vlTransferencia = vlTransferencia;
 		this.dtTransferencia = dtTransferencia;
+		this.situacaoTransferencia = SituacaoTransferencia.PENDENTE;
+		this.dtAgendamento = LocalDate.now();
 	}
 
-	public Agendamento getAgendamento() {
-		return agendamento;
+	public String getNrContaRemetente() {
+		return nrContaRemetente;
 	}
 
-	public void setAgendamento(Agendamento agendamento) {
-		this.agendamento = agendamento;
-	}
-
-	public BigDecimal getVlTranferencia() {
-		return vlTranferencia;
-	}
-
-	public void setVlTranferencia(BigDecimal vlTranferencia) {
-		this.vlTranferencia = vlTranferencia;
+	public void setNrContaRemetente(String nrContaRemetente) {
+		this.nrContaRemetente = nrContaRemetente;
 	}
 
 	public String getNrContaFavorecido() {
@@ -106,36 +66,20 @@ public class Transferencia extends BaseEntity implements Serializable {
 		this.nrContaFavorecido = nrContaFavorecido;
 	}
 
-	public String getAgenciaFavorecido() {
-		return agenciaFavorecido;
+	public BigDecimal getVlTransferencia() {
+		return vlTransferencia;
 	}
 
-	public void setAgenciaFavorecido(String agenciaFavorecido) {
-		this.agenciaFavorecido = agenciaFavorecido;
+	public void setVlTransferencia(BigDecimal vlTransferencia) {
+		this.vlTransferencia = vlTransferencia;
 	}
 
-	public String getEmailFavorecido() {
-		return emailFavorecido;
+	public LocalDate getDtTransferencia() {
+		return dtTransferencia;
 	}
 
-	public void setEmailFavorecido(String emailFavorecido) {
-		this.emailFavorecido = emailFavorecido;
-	}
-
-	public TipoConta getTipoContaFavorecido() {
-		return tipoContaFavorecido;
-	}
-
-	public void setTipoContaFavorecido(TipoConta tipoContaFavorecido) {
-		this.tipoContaFavorecido = tipoContaFavorecido;
-	}
-
-	public TipoConta getTipoContaDebito() {
-		return tipoContaDebito;
-	}
-
-	public void setTipoContaDebito(TipoConta tipoContaDebito) {
-		this.tipoContaDebito = tipoContaDebito;
+	public void setDtTransferencia(LocalDate dtTransferencia) {
+		this.dtTransferencia = dtTransferencia;
 	}
 
 	public SituacaoTransferencia getSituacaoTransferencia() {
@@ -146,12 +90,12 @@ public class Transferencia extends BaseEntity implements Serializable {
 		this.situacaoTransferencia = situacaoTransferencia;
 	}
 
-	public Banco getBancoFavorecido() {
-		return bancoFavorecido;
+	public LocalDateTime getDtAgendamento() {
+		return dtAgendamento;
 	}
 
-	public void setBancoFavorecido(Banco bancoFavorecido) {
-		this.bancoFavorecido = bancoFavorecido;
+	public void setDtAgendamento(LocalDateTime dtAgendamento) {
+		this.dtAgendamento = dtAgendamento;
 	}
 
 }
