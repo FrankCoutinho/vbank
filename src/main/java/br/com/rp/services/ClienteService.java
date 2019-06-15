@@ -51,7 +51,7 @@ public class ClienteService {
 		return true;
 	}
 
-	public Boolean isCpfExistente(String cpf) {
+	public Boolean existeClienteComCpf(String cpf) {
 		try {
 			if (!findByCpf(cpf).equals(null)) {
 				return true;

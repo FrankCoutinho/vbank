@@ -2,10 +2,9 @@ package br.com.rp.domain;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Random;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 
 @Entity
@@ -26,15 +25,27 @@ public class Conta extends BaseEntity implements Serializable {
 	
 	@Column(name = "vl_saldo_conta_corrente", precision = 14, scale = 2, nullable = true)
 	private BigDecimal vlSaldoContaCorrente;
-	
-	public Conta() {
 
+	@OneToOne
+	@JoinColumn(name = "cliente_id", nullable = false, insertable = false, updatable = false)
+	private Cliente cliente;
+
+	public Conta() {
 	}
-	
+
 	public Conta(String nrConta, Boolean isContaCorrente, Boolean isContaPoupanca) {
 		this.nrConta = nrConta;
 		this.isContaCorrente = isContaCorrente;
 		this.isContaPoupanca = isContaPoupanca;
+	}
+
+	public Conta(Cliente cliente) {
+		this.nrConta = Integer.toString(new Random().nextInt(9999999));
+		this.cliente = cliente;
+		this.isContaCorrente = true;
+		this.isContaPoupanca = true;
+		this.vlSaldoContaCorrente = BigDecimal.ZERO;
+		this.vlSaldoContaPoupanca = BigDecimal.ZERO;
 	}
 
 	public String getNrConta() {

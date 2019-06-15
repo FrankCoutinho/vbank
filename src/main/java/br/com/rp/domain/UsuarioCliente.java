@@ -5,6 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import java.util.Random;
 
 
 @Entity
@@ -15,21 +16,19 @@ public class UsuarioCliente extends Usuario {
 	@JoinColumn(name = "cliente_id", nullable = true)
 	private Cliente cliente;
 
-	public Cliente getCliente() {
-		return cliente;
+	public UsuarioCliente() {
+		super();
 	}
 
-	public UsuarioCliente(String nome, String login, String senha, Cliente cliente) {
-		super(nome, login, senha);
-		this.cliente = cliente;
+    public UsuarioCliente(Cliente cliente) {
+    	super(cliente.getCpf(), Integer.toString(new Random().nextInt(9_999_999)));
+    }
+
+    public Cliente getCliente() {
+		return cliente;
 	}
 
 	public void setCliente(Cliente cliente) {
 		this.cliente = cliente;
 	}
-
-	public UsuarioCliente() {
-		super();
-	}
-
 }

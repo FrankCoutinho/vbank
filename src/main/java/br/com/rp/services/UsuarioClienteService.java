@@ -22,8 +22,8 @@ public class UsuarioClienteService {
 		return usuarioClienteRepository.save(usuarioCliente);
 	}
 	
-	public UsuarioCliente findById(Long id){
-		return usuarioClienteRepository.findById(id);
+	public UsuarioCliente getById(Long id){
+		return usuarioClienteRepository.getById(id);
 	}
 	
 	public void remove(Long id){

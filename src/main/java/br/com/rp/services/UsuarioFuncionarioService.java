@@ -25,7 +25,11 @@ public class UsuarioFuncionarioService  {
 	public UsuarioFuncionario findById(Long id){
 		return usuarioFuncionarioRepository.findById(id);
 	}
-	
+
+	public UsuarioFuncionario getById(Long id){
+		return usuarioFuncionarioRepository.getById(id);
+	}
+
 	public void remove(Long id){
 		usuarioFuncionarioRepository.remove(id);
 	}

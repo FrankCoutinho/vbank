@@ -1,21 +1,13 @@
 package br.com.rp.domain;
 
+import br.com.rp.enums.SituacaoEmail;
+
+import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Calendar;
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-
-import br.com.rp.enums.SituacaoEmail;
+import static br.com.rp.enums.SituacaoEmail.ENVIANDO;
 
 @Entity
 @Table(name = "email")
@@ -33,11 +25,7 @@ public class Email extends BaseEntity implements Serializable{
 	@Lob
 	@Column(name = "descricao", nullable = false)
 	private String descricao;
-	
-	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "cliente_id", referencedColumnName="id", nullable = true)
-	private Cliente cliente;
-	
+
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "dh_envio", nullable = false)
 	private Date dhEnvio;
@@ -45,77 +33,28 @@ public class Email extends BaseEntity implements Serializable{
 	@Enumerated(EnumType.STRING)
 	@Column(name = "tp_situacao", length = 30, nullable = false)
 	private SituacaoEmail situacao;
-	
-	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "proposta_id", referencedColumnName="id", nullable = true)
-	private Proposta proposta;
-	
+
 	public Email() {
-
 	}
 
-	public String getRemetente() {
-		return remetente;
-	}
-
-	public void setRemetente(String remetente) {
+	public Email(String remetente, String destinatario, String assunto, String descricao) {
+		this.assunto = assunto;
+		this.descricao = descricao;
 		this.remetente = remetente;
+		this.destinatario = destinatario;
+		this.situacao = ENVIANDO;
+		this.dhEnvio = Calendar.getInstance().getTime();
 	}
 
 	public String getDestinatario() {
 		return destinatario;
 	}
 
-	public void setDestinatario(String destinatario) {
-		this.destinatario = destinatario;
-	}
-
 	public String getAssunto() {
 		return assunto;
-	}
-
-	public void setAssunto(String assunto) {
-		this.assunto = assunto;
 	}
 
 	public String getDescricao() {
 		return descricao;
 	}
-
-	public void setDescricao(String descricao) {
-		this.descricao = descricao;
-	}
-
-	public Cliente getCliente() {
-		return cliente;
-	}
-
-	public void setCliente(Cliente cliente) {
-		this.cliente = cliente;
-	}
-
-	public Date getDhEnvio() {
-		return dhEnvio;
-	}
-
-	public void setDhEnvio(Date dhEnvio) {
-		this.dhEnvio = dhEnvio;
-	}
-
-	public SituacaoEmail getSituacao() {
-		return situacao;
-	}
-
-	public void setSituacao(SituacaoEmail situacao) {
-		this.situacao = situacao;
-	}
-
-	public Proposta getProposta() {
-		return proposta;
-	}
-
-	public void setProposta(Proposta proposta) {
-		this.proposta = proposta;
-	}
-	
 }

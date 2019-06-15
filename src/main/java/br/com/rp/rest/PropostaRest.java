@@ -32,16 +32,7 @@ public class PropostaRest {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/save")
 	public Proposta save(Proposta proposta) {
-
-		if (!propostaService.isCpfValido(proposta.getCpf())) {
-			throw new RuntimeException("O CPF informado é invalido.");
-		} else if (propostaService.isPropostaUltimosTrintaDias(proposta.getCpf())) {
-			throw new RuntimeException("Há uma proposta para este CPF nos últimos 30 dias.");
-		} else if (clienteService.isCpfExistente(proposta.getCpf())) {
-			throw new RuntimeException("Já existe um cliente cadastrado com este CPF.");
-		} else {
-			return propostaService.save(proposta);
-		}
+		 return propostaService.save(proposta);
 	}
 
 	@PUT
@@ -100,9 +91,9 @@ public class PropostaRest {
 	}
 	
 	@GET
-	@Path("/findByRegiao/{regiao}")
+	@Path("/findPropostasAbertasByRegiao/{regiao}")
 	public List<Proposta> getPropostasRegiao(@PathParam("regiao") String regiao){
-		return propostaService.findByRegiao(regiao);
+		return propostaService.findPropostasAbertasByRegiao(regiao);
 	}
 
 }

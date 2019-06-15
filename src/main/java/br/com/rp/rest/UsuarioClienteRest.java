@@ -1,22 +1,14 @@
 package br.com.rp.rest;
 
-import java.util.List;
-
-import javax.ejb.EJB;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
 import br.com.rp.domain.UsuarioCliente;
 import br.com.rp.services.UsuarioClienteService;
 
-@Path("/usuario/cliente")
+import javax.ejb.EJB;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import java.util.List;
+
+@Path("/usuarios/clientes")
 @Produces("application/json")
 public class UsuarioClienteRest {
 
@@ -26,37 +18,31 @@ public class UsuarioClienteRest {
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	@Path("/save")
 	public UsuarioCliente save(UsuarioCliente usuarioCliente) {
 		return usuarioClienteService.save(usuarioCliente);
 	}
 
 	@PUT
-	@Path("/update/{id}")
-	public UsuarioCliente update(@PathParam("id") Long id, UsuarioCliente usuarioCliente) {
-		UsuarioCliente usuarioClienteResult = usuarioClienteService.findById(id);
-		usuarioClienteResult.setNome(usuarioCliente.getNome());
-		usuarioClienteResult.setLogin(usuarioCliente.getLogin());
-		usuarioClienteResult.setSenha(usuarioCliente.getSenha());
-		usuarioClienteResult.setCliente(usuarioCliente.getCliente());
-
+	@Path("/{id}")
+	public UsuarioCliente update(@PathParam("id") Long id, String senha) {
+		UsuarioCliente usuarioClienteResult = usuarioClienteService.getById(id);
+		usuarioClienteResult.alterarSenha(senha);
 		return usuarioClienteService.save(usuarioClienteResult);
 	}
 
 	@DELETE
-	@Path("/remove/{id}")
+	@Path("/{id}")
 	public void remove(@PathParam("id") Long id) {
 		usuarioClienteService.remove(id);
 	}
 
 	@GET
-	@Path("/findById/{id}")
+	@Path("/{id}")
 	public UsuarioCliente findById(@PathParam("id") Long id) {
-		return usuarioClienteService.findById(id);
+		return usuarioClienteService.getById(id);
 	}
 
 	@GET
-	@Path("/getAll")
 	public List<UsuarioCliente> getAll() {
 		return usuarioClienteService.getAll();
 	}

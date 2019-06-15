@@ -1,180 +1,139 @@
 package br.com.rp.services;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Random;
+import br.com.rp.domain.*;
+import br.com.rp.enums.SituacaoProposta;
+import br.com.rp.repository.PropostaRepository;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-
-import br.com.caelum.stella.validation.CPFValidator;
-import br.com.caelum.stella.validation.InvalidStateException;
-import br.com.rp.domain.Cliente;
-import br.com.rp.domain.Conta;
-import br.com.rp.domain.Email;
-import br.com.rp.domain.MotivoRejeicao;
-import br.com.rp.domain.Proposta;
-import br.com.rp.domain.UsuarioCliente;
-import br.com.rp.domain.UsuarioFuncionario;
-import br.com.rp.enums.SituacaoEmail;
-import br.com.rp.enums.SituacaoProposta;
-import br.com.rp.repository.PropostaRepository;
-
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 
 @Stateless
 public class PropostaService {
 
-	@PersistenceContext(unitName = "vbank")
-	private EntityManager em;
+    private static final int TEMPO_MINIMO_PARA_NOVA_PROPOSTA = 30;
 
-	@EJB
-	private PropostaRepository propostaRepository;
+    @EJB
+    private EmailService emailService;
 
-	@EJB
-	private EmailService emailService;
+    @EJB
+    private ContaService contaService;
 
-	@EJB
-	private MotivoRejeicaoService motivoRejeicaoService;
+    @EJB
+    private ClienteService clienteService;
+    @EJB
+    private PropostaRepository propostaRepository;
 
-	@EJB
-	private UsuarioFuncionarioService usuarioFuncionarioService;
+    @EJB
+    private UsuarioClienteService usuarioClienteService;
 
-	@EJB
-	private ContaService contaService;
+    @EJB
+    private UsuarioFuncionarioService usuarioFuncionarioService;
 
-	@EJB
-	private UsuarioClienteService usuarioClienteService;
+    public List<Proposta> getAll() {
+        return propostaRepository.getAll();
+    }
 
-	@EJB
-	private ClienteService clienteService;
+    public Proposta save(Proposta proposta) {
 
-	public List<Proposta> getAll() {
-		return propostaRepository.getAll();
-	}
+        verificaSeExisteUmaPropostaRecente(proposta);
+        verificaSeExisteClienteCadastradoComCpf(proposta.getCpf());
 
-	public Proposta save(Proposta proposta) {
-		return propostaRepository.save(proposta);
-	}
+        return propostaRepository.save(proposta);
+    }
 
-	public Proposta findById(Long id) {
-		return propostaRepository.findById(id);
-	}
+    public Proposta findById(Long id) {
+        return propostaRepository.findById(id);
+    }
 
-	public void remove(Long id) {
-		propostaRepository.remove(id);
-	}
+    public void remove(Long id) {
+        propostaRepository.remove(id);
+    }
 
-	public List<Proposta> findByDataUltimaProposta(String cpf) {
-		Calendar calendario = Calendar.getInstance();
-		calendario.add(Calendar.DATE, -30);
-		return em
-				.createQuery(
-						"from " + Proposta.class.getSimpleName() + " where cpf = '" + cpf + "' and dataProposta > '"
-								+ new SimpleDateFormat("yyyy-MM-dd").format(calendario.getTime()) + "'",
-						Proposta.class)
-				.getResultList();
-	}
+    public Proposta aprovarProposta(Long idProposta, Long idUsuarioQueAnalisou) {
 
-	public Boolean isPropostaUltimosTrintaDias(String cpf) {
-		if (findByDataUltimaProposta(cpf).size() > 0) {
-			return true;
-		}
-		return false;
-	}
+        Proposta proposta = propostaRepository.getById(idProposta);
+        UsuarioFuncionario usuarioFuncionarioAnalise = usuarioFuncionarioService.findById(idUsuarioQueAnalisou);
 
-	public Boolean isCpfValido(String cpf) {
-		try {
-			new CPFValidator().assertValid(cpf);
-		} catch (InvalidStateException e) {
-			return false;
-		}
-		return true;
-	}
+        proposta.aprovar(usuarioFuncionarioAnalise);
+        save(proposta);
 
-	public Proposta aprovarProposta(Long idProposta, Long idUsuarioAnalisou) {
-		Proposta proposta = propostaRepository.findById(idProposta);
-		if (proposta != null) {
-			UsuarioFuncionario usuarioFuncionarioAnalise = usuarioFuncionarioService.findById(idUsuarioAnalisou);
-			if (usuarioFuncionarioAnalise != null) {
-				proposta.setUsuarioAnalise(usuarioFuncionarioAnalise);
-				proposta.setSituacaoProposta(SituacaoProposta.APROVADA);
-				save(proposta);
+        Cliente cliente = new Cliente(proposta);
+        clienteService.save(cliente);
 
-				Cliente cliente = clienteService.save(new Cliente(proposta.getNome(), proposta.getCpf(),
-						proposta.getEmail(), proposta.getRenda(), contaService
-								.save(new Conta(new Integer(new Random().nextInt(9999999)).toString(), true, false))));
+        Conta conta = new Conta(cliente);
+        contaService.save(conta);
 
-				usuarioClienteService.save(new UsuarioCliente(cliente.getNome(), cliente.getConta().getNrConta(),
-						new Integer(new Random().nextInt(9999999)).toString(), cliente));
+        UsuarioCliente usuarioCliente = new UsuarioCliente(cliente);
+        usuarioClienteService.save(usuarioCliente);
 
-				Email email = new Email();
-				email.setAssunto("Proposta de abertura de conta Aprovada");
-				email.setDescricao("Prezada(a) Sr(a) " + proposta.getNome() + ".\n\n"
-						+ "Informamos que o sua proposta de abertura de conta foi aprovada.\n\n"
-						+ "O número da sua conta e login é: " + cliente.getConta().getNrConta()
-						+ "\n\nPor favor altere sua senha acessando o seguinte endereço: \n\n" + "http://vbank.com.br/"
-						+ cliente.getNome() + "/alterarSenha \n\n" + "Atenciosamente,\nEquipe Vbank");
-				email.setDestinatario(cliente.getEmail());
-				email.setRemetente(usuarioFuncionarioAnalise.getFuncionario().getEmail());
-				email.setSituacao(SituacaoEmail.ENVIADO);
-				email.setDhEnvio(Calendar.getInstance().getTime());
-				email.setProposta(proposta);
-				email.setCliente(cliente);
-				emailService.save(email);
-				emailService.enviarEmail(email);
+        String assunto = "Proposta de abertura de conta Aprovada";
 
-				return proposta;
-			} else
-				throw new RuntimeException("O Usuário de analise não existe.");
-		} else
-			throw new RuntimeException("A Proposta não existe.");
-	}
+        String descricao = "Prezada(a) Sr(a) " + cliente.getNome() + ".\n\n"
+                + "Informamos que o sua proposta de abertura de conta foi aprovada.\n\n"
+                + "O número da sua conta e login é: " + cliente.getConta().getNrConta()
+                + "\n\nPor favor altere sua senha acessando o seguinte endereço: \n\n" + "http://vbank.com.br/"
+                + cliente.getNome() + "/alterarSenha \n\n" + "Atenciosamente,\nEquipe Vbank";
 
-	public Proposta rejeitarProposta(Long idProposta, String mensagemRejeicao, Long idUsuarioAnalise) {
-		Proposta proposta = findById(idProposta);
-		if (proposta != null) {
-			UsuarioFuncionario usuarioFuncionario = usuarioFuncionarioService.findById(idUsuarioAnalise);
-			if (usuarioFuncionario != null) {
-				MotivoRejeicao motivoRejeicao = new MotivoRejeicao();
-				motivoRejeicao.setDsMotivo(mensagemRejeicao);
-				motivoRejeicaoService.save(motivoRejeicao);
+        String destinatario = cliente.getEmail();
 
-				proposta.setSituacaoProposta(SituacaoProposta.REJEITADA);
-				proposta.setMotivoRejeicao(motivoRejeicao);
-				proposta.setUsuarioAnalise(usuarioFuncionario);
-				save(proposta);
+        String remetente = usuarioFuncionarioAnalise.getFuncionario().getEmail();
 
-				Email email = new Email();
-				email.setAssunto("Proposta de abertura de conta rejeitada");
-				email.setDescricao("Prezada(a) Sr(a) " + proposta.getNome() + ".\n\n"
-						+ "Informamos que o sua proposta de abertura de conta foi rejeitada pelo seguinte motivo: "
-						+ mensagemRejeicao + ".\n\n"
-						+ "Aguarde 30 dias para realizar uma nova proposta.\n\nAtenciosamente, \nEquipe VBank");
-				email.setDestinatario(proposta.getEmail());
-				email.setRemetente(usuarioFuncionario.getFuncionario().getEmail());
-				email.setSituacao(SituacaoEmail.ENVIADO);
-				email.setDhEnvio(Calendar.getInstance().getTime());
-				email.setProposta(proposta);
-				emailService.save(email);
-				emailService.enviarEmail(email);
-				return proposta;
+        Email email = new Email(remetente, destinatario, assunto, descricao);
+        emailService.save(email);
+        emailService.enviarEmail(email);
 
-			} else
-				throw new RuntimeException("O Usuário de analise não existe.");
+        return proposta;
+    }
 
-		} else
-			throw new RuntimeException("A Proposta não existe.");
+    public Proposta rejeitarProposta(Long idProposta, String mensagemRejeicao, Long idUsuarioAnalise) {
+        Proposta proposta = propostaRepository.getById(idProposta);
+        UsuarioFuncionario usuarioFuncionario = usuarioFuncionarioService.getById(idUsuarioAnalise);
 
-	}
+        proposta.rejeitar(mensagemRejeicao, usuarioFuncionario);
+        save(proposta);
 
-	public List<Proposta> findByRegiao(String regiao) {
-		return em
-				.createQuery("from " + Proposta.class.getSimpleName() + " where regiao like '%" + regiao
-						+ "%' and situacaoProposta = '" + SituacaoProposta.ABERTA + "'", Proposta.class)
-				.getResultList();
-	}
+        String assunto = "Proposta de abertura de conta rejeitada";
+        String descricao = "Prezada(a) Sr(a) " + proposta.getNome() + ".\n\n"
+                + "Informamos que o sua proposta de abertura de conta foi rejeitada pelo seguinte motivo: "
+                + mensagemRejeicao + ".\n\n"
+                + "Aguarde 30 dias para realizar uma nova proposta.\n\nAtenciosamente, \nEquipe VBank";
 
+        String destinatario = proposta.getEmail();
+        String remetente = usuarioFuncionario.getFuncionario().getEmail();
+
+        Email email = new Email(remetente, destinatario, assunto, descricao);
+        emailService.save(email);
+        emailService.enviarEmail(email);
+        return proposta;
+    }
+
+    public List<Proposta> findPropostasAbertasByRegiao(String regiao) {
+        return propostaRepository.findByRegiaoAndSituacaoProposta(regiao, SituacaoProposta.ABERTA);
+    }
+
+    private void verificaSeExisteClienteCadastradoComCpf(String cpf) {
+        if (clienteService.existeClienteComCpf(cpf))
+            throw new RuntimeException("Já existe um cliente cadastrado com este CPF.");
+    }
+
+    private void verificaSeExisteUmaPropostaRecente(Proposta proposta) {
+        Optional<Proposta> ultimaProposta = propostaRepository.findUltimaProposta(proposta.getCpf());
+
+        if (!ultimaProposta.isPresent())
+            return;
+
+        boolean isDepoisDoTempoMinimoParaNovaProposta1 = ultimaProposta
+                .get()
+                .getDataProposta()
+                .isBefore(LocalDate.now().minusDays(TEMPO_MINIMO_PARA_NOVA_PROPOSTA));
+
+        if (!isDepoisDoTempoMinimoParaNovaProposta1)
+            throw new RuntimeException(
+                    String.format("Há uma proposta para este CPF nos últimos %d dias.", TEMPO_MINIMO_PARA_NOVA_PROPOSTA));
+    }
 }

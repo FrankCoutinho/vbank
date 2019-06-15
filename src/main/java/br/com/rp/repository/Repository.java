@@ -10,6 +10,8 @@ public interface Repository<T extends BaseEntity> {
 
 	T findById(Long id);
 
+	T getById(Long id);
+
 	T save(T object);
 
 	void remove(Long id);

@@ -37,7 +37,7 @@ public class UsuarioFuncionarioRest {
 		UsuarioFuncionario usuarioFuncionarioResult = usuarioFuncionarioService.findById(id);
 		usuarioFuncionarioResult.setNome(usuarioFuncionario.getNome());
 		usuarioFuncionarioResult.setLogin(usuarioFuncionario.getLogin());
-		usuarioFuncionarioResult.setSenha(usuarioFuncionario.getSenha());
+		usuarioFuncionarioResult.alterarSenha(usuarioFuncionario.getSenha());
 		usuarioFuncionarioResult.setFuncionario(usuarioFuncionario.getFuncionario());
 
 		return usuarioFuncionarioService.save(usuarioFuncionarioResult);

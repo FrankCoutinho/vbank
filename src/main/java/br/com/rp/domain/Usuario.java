@@ -23,9 +23,6 @@ import javax.validation.constraints.Size;
 @DiscriminatorColumn(name = "tp_usuario", discriminatorType = DiscriminatorType.STRING, length = 15)
 public abstract class Usuario extends BaseEntity implements Serializable {
 
-	@Column(name = "nome", length = 60, nullable = false)
-	private String nome;
-
 	@Column(name = "login", length = 30, nullable = true)
 	private String login;
 	
@@ -39,31 +36,19 @@ public abstract class Usuario extends BaseEntity implements Serializable {
 	private List<Papel> papel;
 
 	public Usuario() {
-
 	}
 	
-	public Usuario(String nome, String login, String senha) {
+	public Usuario(String login, String senha) {
 		super();
-		this.nome = nome;
 		this.senha = senha;
 		this.login = login;
-	}
-
-
-
-	public String getNome() {
-		return nome;
-	}
-
-	public void setNome(String nome) {
-		this.nome = nome;
 	}
 
 	public String getSenha() {
 		return senha;
 	}
 
-	public void setSenha(String senha) {
+	public void alterarSenha(String senha) {
 		this.senha = senha;
 	}
 

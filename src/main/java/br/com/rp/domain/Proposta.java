@@ -2,7 +2,7 @@ package br.com.rp.domain;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDate;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,13 +12,11 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 import br.com.rp.enums.SituacaoProposta;
 
 
-@Entity
+@Entity(name = "Proposta")
 @Table(name = "proposta")
 public class Proposta extends BaseEntity implements Serializable {
 
@@ -37,9 +35,8 @@ public class Proposta extends BaseEntity implements Serializable {
 	@Column(name = "vl_renda", precision = 14, scale = 2, nullable = false)
 	private BigDecimal renda;
 
-	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "dt_proposta", nullable = false)
-	private Date dataProposta;
+	private LocalDate dataProposta;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "tp_situacao", length = 20, nullable = false)
@@ -48,17 +45,16 @@ public class Proposta extends BaseEntity implements Serializable {
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "usuarioanalise_id", referencedColumnName = "id", nullable = true)
 	private UsuarioFuncionario usuarioAnalise;
-
-	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "motivorejeicao_id", referencedColumnName = "id", nullable = true)
-	private MotivoRejeicao motivoRejeicao;
+	
+	@Column(name = "motivo_rejeicao", length = 200, nullable = true)
+	private String motivoRejeicao;
 
 	public Proposta() {
 
 	}
 	
-	public Proposta( String nome, String cpf,String email, String regiao, BigDecimal renda, Date dataProposta,
-			SituacaoProposta situacaoProposta) {
+	public Proposta( String nome, String cpf,String email, String regiao, BigDecimal renda, LocalDate dataProposta,
+			SituacaoProposta situacaoProposta, String motivoRejeicao) {
 		super();
 		this.cpf = cpf;
 		this.nome = nome;
@@ -67,6 +63,7 @@ public class Proposta extends BaseEntity implements Serializable {
 		this.dataProposta = dataProposta;
 		this.situacaoProposta = situacaoProposta;
 		this.email = email;
+		this.motivoRejeicao = motivoRejeicao;
 	}
 
 	public String getCpf() {
@@ -109,11 +106,11 @@ public class Proposta extends BaseEntity implements Serializable {
 		this.renda = renda;
 	}
 
-	public Date getDataProposta() {
+	public LocalDate getDataProposta() {
 		return dataProposta;
 	}
 
-	public void setDataProposta(Date dataProposta) {
+	public void setDataProposta(LocalDate dataProposta) {
 		this.dataProposta = dataProposta;
 	}
 
@@ -133,12 +130,22 @@ public class Proposta extends BaseEntity implements Serializable {
 		this.usuarioAnalise = usuarioAnalise;
 	}
 
-	public MotivoRejeicao getMotivoRejeicao() {
+	public String getMotivoRejeicao() {
 		return motivoRejeicao;
 	}
-
-	public void setMotivoRejeicao(MotivoRejeicao motivoRejeicao) {
+	
+	public void setMotivoRejeicao(String motivoRejeicao) {
 		this.motivoRejeicao = motivoRejeicao;
 	}
 
+	public void aprovar(UsuarioFuncionario usuarioFuncionarioAnalise) {
+		this.usuarioAnalise = usuarioFuncionarioAnalise;
+		this.situacaoProposta = SituacaoProposta.APROVADA;
+	}
+
+	public void rejeitar(String mensagemRejeicao, UsuarioFuncionario usuarioFuncionario) {
+		this.motivoRejeicao = mensagemRejeicao;
+		this.usuarioAnalise = usuarioFuncionario;
+		this.situacaoProposta = SituacaoProposta.REJEITADA;
+	}
 }

@@ -3,12 +3,9 @@ package br.com.rp.domain;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
+
+import br.com.caelum.stella.validation.CPFValidator;
 
 
 @Entity
@@ -27,22 +24,32 @@ public class Cliente extends BaseEntity implements Serializable {
 	@Column(name = "vl_renda", precision = 14, scale = 2, nullable = false)
 	private BigDecimal vlRenda;
 
-	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "id_conta", referencedColumnName = "id", nullable = true)
+	@OneToOne(fetch = FetchType.EAGER, mappedBy = "cliente")
 	private Conta conta;
 
 	public Cliente() {
+	}
 
+	public Cliente(Proposta proposta) {
+		new CPFValidator().assertValid(cpf);
+
+		this.cpf = proposta.getCpf();
+		this.email = proposta.getEmail();
+		this.nome = proposta.getNome();
+		this.vlRenda = proposta.getRenda();
 	}
 
 	public Cliente(String nome, String cpf,String email, BigDecimal vlRenda, Conta conta) {
+		new CPFValidator().assertValid(cpf);
+
 		this.nome = nome;
 		this.cpf = cpf;
 		this.vlRenda = vlRenda;
 		this.conta = conta;
 		this.email = email;
 	}
-	
+
+
 	public String getNome() {
 		return nome;
 	}

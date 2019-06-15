@@ -28,7 +28,7 @@ public class ClienteRest {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/save")
 	public Cliente save(Cliente cliente) {
-		if (clienteService.isCpfExistente(cliente.getCpf())) {
+		if (clienteService.existeClienteComCpf(cliente.getCpf())) {
 			throw new RuntimeException("Já existe um cliente cadastrado com este CPF.");
 		} else if (!clienteService.isCpfValido(cliente.getCpf())) {
 			throw new RuntimeException("O CPF informado não é válido.");
