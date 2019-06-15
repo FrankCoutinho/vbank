@@ -5,4 +5,6 @@ import br.com.vbank.domain.Conta;
 
 public interface ContaRepository extends Repository<Conta> {
 
+	Conta findByNrConta(String numeroConta);
+
 }
