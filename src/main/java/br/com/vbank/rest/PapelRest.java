@@ -26,7 +26,7 @@ public class PapelRest {
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	@Path("/save")
+	@Path("/criar")
 	public Papel save(Papel acao) {
 		return papelService.save(acao);
 	}

@@ -18,7 +18,7 @@ public class AgendamentoService {
 		return agendamentoRepository.getAll();
 	}
 
-	public Agendamento save(Agendamento agendamento) {
+	public Agendamento criar(Agendamento agendamento) {
 		return agendamentoRepository.save(agendamento);
 	}
 

@@ -25,9 +25,7 @@ public class Agendamento extends BaseEntity implements Serializable {
 	@JoinColumn(name = "cliente_id", referencedColumnName = "id", nullable = false)
 	private Cliente cliente;
 
-	public Agendamento() {
-
-	}
+	public Agendamento() {}
 
 	public Cliente getCliente() {
 		return cliente;

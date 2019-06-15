@@ -17,17 +17,16 @@ import br.com.vbank.domain.Agendamento;
 import br.com.vbank.services.AgendamentoService;
 
 @Path("/agendamentos")
-@Produces("application/json")
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 public class AgendamentoRest {
 
 	@EJB
 	private AgendamentoService agendamentoService;
 
 	@POST
-	@Produces(MediaType.APPLICATION_JSON)
-	@Consumes(MediaType.APPLICATION_JSON)
-	public Agendamento save(Agendamento agendamento) {
-		return agendamentoService.save(agendamento);
+	public Agendamento criar(Agendamento agendamento) {
+		return agendamentoService.criar(agendamento);
 	}
 
 	@PUT
@@ -37,7 +36,7 @@ public class AgendamentoRest {
 		agendamentoResult.setDataAgendamento(agendamento.getDataAgendamento());
 		agendamentoResult.setCliente(agendamento.getCliente());
 
-		return agendamentoService.save(agendamentoResult);
+		return agendamentoService.criar(agendamentoResult);
 	}
 
 	@DELETE
@@ -56,5 +55,4 @@ public class AgendamentoRest {
 	public List<Agendamento> getAll() {
 		return agendamentoService.getAll();
 	}
-
 }

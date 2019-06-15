@@ -1,6 +1,8 @@
 package br.com.vbank.services;
 
 import br.com.vbank.domain.*;
+import br.com.vbank.dtos.AprovarPropostaDto;
+import br.com.vbank.dtos.RejeitarPropostaDto;
 import br.com.vbank.enums.SituacaoProposta;
 import br.com.vbank.repository.PropostaRepository;
 
@@ -23,6 +25,7 @@ public class PropostaService {
 
     @EJB
     private ClienteService clienteService;
+
     @EJB
     private PropostaRepository propostaRepository;
 
@@ -44,18 +47,19 @@ public class PropostaService {
         return propostaRepository.save(proposta);
     }
 
-    public Proposta findById(Long id) {
-        return propostaRepository.findById(id);
+    public Proposta getById(Long id) {
+        return propostaRepository.getById(id);
     }
 
     public void remove(Long id) {
         propostaRepository.remove(id);
     }
 
-    public Proposta aprovarProposta(Long idProposta, Long idUsuarioQueAnalisou) {
+    public Proposta aprovarProposta(Long idProposta, AprovarPropostaDto aprovarPropostaDto) {
 
         Proposta proposta = propostaRepository.getById(idProposta);
-        UsuarioFuncionario usuarioFuncionarioAnalise = usuarioFuncionarioService.findById(idUsuarioQueAnalisou);
+        UsuarioFuncionario usuarioFuncionarioAnalise = usuarioFuncionarioService
+            .findById(aprovarPropostaDto.funcionarioId);
 
         proposta.aprovar(usuarioFuncionarioAnalise);
         save(proposta);
@@ -88,17 +92,18 @@ public class PropostaService {
         return proposta;
     }
 
-    public Proposta rejeitarProposta(Long idProposta, String mensagemRejeicao, Long idUsuarioAnalise) {
+    public Proposta rejeitarProposta(Long idProposta, RejeitarPropostaDto rejeitarPropostaDto) {
         Proposta proposta = propostaRepository.getById(idProposta);
-        UsuarioFuncionario usuarioFuncionario = usuarioFuncionarioService.getById(idUsuarioAnalise);
+        UsuarioFuncionario usuarioFuncionario = usuarioFuncionarioService
+            .getById(rejeitarPropostaDto.funcionarioId);
 
-        proposta.rejeitar(mensagemRejeicao, usuarioFuncionario);
+        proposta.rejeitar(rejeitarPropostaDto.mensagemDeReprovacao, usuarioFuncionario);
         save(proposta);
 
         String assunto = "Proposta de abertura de conta rejeitada";
         String descricao = "Prezada(a) Sr(a) " + proposta.getNome() + ".\n\n"
                 + "Informamos que o sua proposta de abertura de conta foi rejeitada pelo seguinte motivo: "
-                + mensagemRejeicao + ".\n\n"
+                + rejeitarPropostaDto.mensagemDeReprovacao + ".\n\n"
                 + "Aguarde 30 dias para realizar uma nova proposta.\n\nAtenciosamente, \nEquipe VBank";
 
         String destinatario = proposta.getEmail();

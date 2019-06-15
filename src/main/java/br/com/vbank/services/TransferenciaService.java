@@ -16,24 +16,21 @@ import br.com.vbank.repository.TransferenciaRepository;
 public class TransferenciaService {
 
 	@EJB
-	private TransferenciaRepository transferenciaRepository;
+	private MovimentoService movimentoService;
 
 	@EJB
 	private TimeIntegrationService parametroService;
 
 	@EJB
-	private MovimentoService movimentoService;
+	private TransferenciaRepository transferenciaRepository;
 
 	public List<Transferencia> getAll() {
 		return transferenciaRepository.getAll();
 	}
 
-	public void remove(Long id) {
-		transferenciaRepository.remove(id);
-	}
-
-	public Transferencia save(Transferencia transferencia) {
+	public Transferencia agendar(Transferencia transferencia) {
 		TimeIntegration parametro = parametroService.findParametro();
+
 		if (parametroService.isHorarioTransacaoValido(parametro, transferencia)) {
 			Transferencia transf = transferenciaRepository.save(transferencia);
 			if (transf.getSituacaoTransferencia() == SituacaoTransferencia.FINALIZADA) {
@@ -48,8 +45,7 @@ public class TransferenciaService {
 		}
 	}
 
-	public Transferencia findById(Long id) {
-		return transferenciaRepository.findById(id);
+	public Transferencia getById(Long id) {
+		return transferenciaRepository.getById(id);
 	}
-
 }

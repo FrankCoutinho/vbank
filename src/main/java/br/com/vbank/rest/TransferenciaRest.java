@@ -4,10 +4,8 @@ import java.util.List;
 
 import javax.ejb.EJB;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -18,7 +16,8 @@ import br.com.vbank.services.TransferenciaService;
 
 
 @Path("/transferencias")
-@Produces("application/json")
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 public class TransferenciaRest {
 	
 	@EJB
@@ -26,34 +25,17 @@ public class TransferenciaRest {
 	
 	@GET
 	@Path("/{id}")
-	public Transferencia findById(@PathParam("id") Long id){
-		return transferenciaService.findById(id);
+	public Transferencia getById(@PathParam("id") Long id){
+		return transferenciaService.getById(id);
 	}
 	
 	@POST
-	@Produces(MediaType.APPLICATION_JSON)
-	@Consumes(MediaType.APPLICATION_JSON)
-	public Transferencia save(Transferencia transferencia){
-		return transferenciaService.save(transferencia);
+	public Transferencia agendar(Transferencia transferencia){
+		return transferenciaService.agendar(transferencia);
 	}
-	
-	@PUT
-	@Path("/{id}")
-	public Transferencia update(@PathParam("id") Long id, Transferencia transferencia){
-		Transferencia transferenciaResult = transferenciaService.findById(id);
-		transferenciaResult.setSituacaoTransferencia(transferencia.getSituacaoTransferencia());		
-		return transferenciaService.save(transferencia);
-	}
-	
-	@DELETE
-	@Path("/{id}")
-	public void remove (@PathParam("id") Long id){
-		transferenciaService.remove(id);
-	}
-	
+
 	@GET
 	public List<Transferencia> getAll(){
 		return transferenciaService.getAll();
 	}
-
 }
